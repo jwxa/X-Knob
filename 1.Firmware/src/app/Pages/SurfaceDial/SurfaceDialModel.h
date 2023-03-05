@@ -2,8 +2,8 @@
 #define __SURFACE_DIAL_MODEL_H
 #include "app/Utils/AccountSystem/Account.h"
 #include "lvgl.h"
-#include "PlaygroundView.h"
-#include "PlaygroundModel.h"
+#include "../Playground/PlaygroundView.h"
+#include "../Playground/PlaygroundModel.h"
 
 namespace Page
 {

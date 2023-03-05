@@ -1,9 +1,9 @@
 #ifndef __SUPER_DIAL_VIEW_H
 #define __SUPER_DIAL_VIEW_H
-#include "Arduino.h"
+#include <Arduino.h>
 #include "app/app.h"
-#include "../Page.h"
-#include "PlaygroundView.h"
+#include "app/Pages/Page.h"
+#include "../Playground/PlaygroundView.h"
 
 
 namespace Page
