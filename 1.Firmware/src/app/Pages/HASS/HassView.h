@@ -14,6 +14,7 @@ typedef struct
 {
     lv_obj_t* cont;   // include icon and label
     lv_obj_t* l_dev_name;
+    int type;
     bool is_on_off;  
     bool is_set_value;
 } device_t;
@@ -30,7 +31,7 @@ public:
     void UpdateView(PlaygroundInfo *info);
     void SetPlaygroundMode(int16_t mode);
     void UpdateFocusedDevice(const char* name);
-    void SetCtrView(lv_obj_t *obj);
+    void SetCtrView(lv_obj_t *obj,lv_obj_t *root);
     void ClearCtrView(lv_obj_t *obj);
     void UpdateCtrlView(PlaygroundInfo *info);
     char* GetEditedDeviceName(void);
@@ -41,6 +42,7 @@ public:
         device_t monitor_light;
         device_t air_conditioning;
         device_t wash_machine;
+        device_t settings;
         lv_obj_t* foucs_label;
         lv_group_t* group;
     } m_ui;
@@ -60,6 +62,10 @@ private:
     void device_item_create(device_t* item, lv_obj_t* par,
         const char* name, const char* img_src,
         bool is_on_off, bool is_set_value);
+    void device_item_create_settings(device_t* item, lv_obj_t* par,
+        const char* name);
+    void AttachEvent(lv_obj_t* obj);
+
 };
 
 }

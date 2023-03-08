@@ -4,7 +4,7 @@
 #include "app/app.h"
 #include "app/Pages/Page.h"
 #include "../Playground/PlaygroundView.h"
-
+#include "SurfaceDialModel.h"
 
 namespace Page
 {
@@ -15,7 +15,7 @@ public:
     SurfaceDialView(){}
     void Create(lv_obj_t* root);
     void Delete();
-    void UpdateView(PlaygroundInfo *info);
+    void UpdateView(SurfaceDialInfo *info);
     void SetPlaygroundMode(int16_t mode);
 
 

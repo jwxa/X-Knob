@@ -5,24 +5,29 @@
 #include "../Playground/PlaygroundView.h"
 #include "../Playground/PlaygroundModel.h"
 
+typedef struct A : PlaygroundInfo
+{
+	bool is_ble_connected;
+} SurfaceDialInfo;
+
 namespace Page
 {
 
-class SurfaceDialModel: public PlaygroundModel
-{
-public:
-    SurfaceDialModel();
-    void Init();
-    void Deinit();
-    void Update(void* pg_ui);
-    void GetKnobStatus(PlaygroundInfo *info);
-    void ChangeMotorMode(int mode);
-    void SetPlaygroundMode(int16_t mode);
+	class SurfaceDialModel : public PlaygroundModel
+	{
+	 public:
+		SurfaceDialModel();
+		void Init();
+		void Deinit();
+		void Update(void* pg_ui);
+		void GetKnobStatus(SurfaceDialInfo* info);
+		void ChangeMotorMode(int mode);
+		void SetPlaygroundMode(int16_t mode);
 
-    void onEvent(Account* account, Account::EventParam_t* param);
-private:
+		void onEvent(Account* account, Account::EventParam_t* param);
+	 private:
 
-};
+	};
 
 }
 

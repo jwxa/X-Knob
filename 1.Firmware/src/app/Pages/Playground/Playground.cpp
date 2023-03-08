@@ -1,10 +1,6 @@
 #include "Playground.h"
 #include <Arduino.h>
-#include "SurfaceDialView.h"
-#include "SurfaceDialModel.h"
-#include "../HASS/HassModel.h"
-#include "../HASS/HassView.h"
-#include "../HASS/HassHalComm.h"
+
 using namespace Page;
 
 typedef struct {
@@ -54,22 +50,12 @@ void Playground::onViewLoad()
 	app = PLAYGROUND_MODE_NO_EFFECTS;  // default 
 	if (priv.Stash.ptr) {
 		app = *((int16_t *)priv.Stash.ptr);
-		Serial.printf("\nPlayground: app = %d\n", app);
+		printf("\nPlayground: app = %d\n", app);
 	}
 	switch (app) {
 		case PLAYGROUND_MODE_NO_EFFECTS:
 			Model = new PlaygroundModel();
 			View = new PlaygroundView();
-			break;
-		case APP_MODE_SUPER_DIAL:
-			Model = (SurfaceDialModel*) new SurfaceDialModel(); 
-			View = (PlaygroundView*) new SurfaceDialView();
-			HAL::surface_dial_init();
-			break;
-		case APP_MODE_HOME_ASSISTANT:
-			Model = (SurfaceDialModel*) new HassModel(); 
-			View = (PlaygroundView*) new HassView();
-			hass_hal_init();
 			break;
 		default:
 			break;
@@ -78,18 +64,11 @@ void Playground::onViewLoad()
 	Model->Init();
 	View->Create(root);
 
-	
+
 	// lv_label_set_text(View->ui.labelTitle, Name);
 
 	AttachEvent(root);
 	AttachEvent(View->ui.meter);
-
-	if (app == APP_MODE_HOME_ASSISTANT) {
-		AttachEvent(((HassView*)View)->m_ui.fan.cont);
-		AttachEvent(((HassView*)View)->m_ui.monitor_light.cont);
-		AttachEvent(((HassView*)View)->m_ui.air_conditioning.cont);
-		AttachEvent(((HassView*)View)->m_ui.wash_machine.cont);
-	}
 
 }
 
@@ -150,12 +129,6 @@ void Playground::Update()
 			case APP_MODE_SUPER_DIAL:
 				HAL::surface_dial_update(info.konb_direction);
 				break;
-			case APP_MODE_HOME_ASSISTANT:
-				char *name = ((HassView*)View)->GetEditedDeviceName();
-				if(name != NULL) {
-					hass_hal_send(name, info.konb_direction);
-				}
-				break;
 		}
 	}
 
@@ -170,32 +143,13 @@ void Playground::onTimerUpdate(lv_timer_t* timer)
 	instance->Update();
 }
 
-void Playground::SurfaceDialEventHandler(lv_event_t* event, lv_event_code_t code)
-{
-	if (code == LV_EVENT_PRESSED) {
-		if (app == APP_MODE_SUPER_DIAL) {
-			Serial.printf("Playground: press\n");
-			HAL::surface_dial_press();
-		}	
-	} else if (code == LV_EVENT_LONG_PRESSED_REPEAT) {
-		// return to memu
-		Serial.printf("Playground: LV_EVENT_LONG_PRESSED_REPEAT\n");
-		Model->ChangeMotorMode(MOTOR_UNBOUND_COARSE_DETENTS);
-		Manager->Pop();
-	} else if (code == LV_EVENT_RELEASED) {
-		if (app == APP_MODE_SUPER_DIAL) {
-			Serial.printf("Playground: realse\n");
-			HAL::surface_dial_release();
-		}
-	}
-}
-
+//旋钮示例处理逻辑
 void Playground::PlayEventHandler(lv_event_t* event, lv_event_code_t code)
 {
 	if (code == LV_EVENT_PRESSED) {
-		
+
 		int app = Model->app + 1;
-	
+
 		if (app != PLAYGROUND_MODE_MAX) {
 			Model->ChangeMotorMode(app_config[app].motor_mode);
 			Model->SetPlaygroundMode(app);
@@ -205,66 +159,12 @@ void Playground::PlayEventHandler(lv_event_t* event, lv_event_code_t code)
 			Model->ChangeMotorMode(MOTOR_UNBOUND_COARSE_DETENTS);
 			Manager->Pop();
 		}
-		
-		if (app == APP_MODE_SUPER_DIAL) {
-			Serial.printf("Playground: press\n");
-			HAL::surface_dial_press();
-		}	
 	} else if (code == LV_EVENT_LONG_PRESSED) {
 		// return to memu
-		Serial.printf("Playground: LV_EVENT_LONG_PRESSED\n");
+		printf("Playground: LV_EVENT_LONG_PRESSED\n");
 		Model->ChangeMotorMode(MOTOR_UNBOUND_COARSE_DETENTS);
 		Manager->Pop();
-	} 
-}
-
-void Playground::HassEventHandler(lv_event_t* event, lv_event_code_t code)
-{	
-	lv_obj_t* obj = lv_event_get_target(event);
-    lv_obj_t* label = lv_obj_get_child(obj, 1);
-	
-	if (code < LV_EVENT_RELEASED) {
-		printf("code: %d\n", code);
 	}
-	
-	if (code == LV_EVENT_FOCUSED) {
-        if (label != NULL) {
-			printf("fouces, name:%s\n", lv_label_get_text(label));
-			((HassView*)View)->UpdateFocusedDevice(lv_label_get_text(label));
-		}
-    }
-	if (code == LV_EVENT_PRESSED)
-	{
-		if (!lv_obj_has_state(obj, LV_STATE_EDITED)) {
-			if (label != NULL) {
-				printf("Control device: %s\n", lv_label_get_text(label));
-			}
-			lv_obj_add_state(obj, LV_STATE_EDITED);
-			((HassView*)View)->SetCtrView(obj);
-			HAL::encoder_disable();
-			if (((HassView*)View)->GetViewMode() == VIEW_MODE_ON_OFF) {
-				Model->ChangeMotorMode(MOTOR_ON_OFF_STRONG_DETENTS);
-			}
-		} else {
-			hass_hal_send(lv_label_get_text(label), HASS_PUSH);
-		}
-	} else if (code == LV_EVENT_LONG_PRESSED) {
-		Serial.printf("Hass: LV_EVENT_LONG_PRESSED\n");
-		if (lv_obj_has_state(obj, LV_STATE_EDITED)) {
-			((HassView*)View)->ClearCtrView(obj);
-			lv_obj_clear_state(obj, LV_STATE_EDITED);
-			HAL::encoder_enable();
-			Model->ChangeMotorMode(app_config[app].motor_mode);
-		} 
-	} else if (code == LV_EVENT_LONG_PRESSED_REPEAT) {
-		// return to memu
-		if (!lv_obj_has_state(obj, LV_STATE_EDITED)){
-			Serial.printf("Playground: LV_EVENT_LONG_PRESSED_REPEAT\n");
-			Model->ChangeMotorMode(MOTOR_UNBOUND_COARSE_DETENTS);
-			Manager->Pop();
-		}
-	} 
-
 }
 
 void Playground::onEvent(lv_event_t* event)
@@ -279,12 +179,6 @@ void Playground::onEvent(lv_event_t* event)
     	case PLAYGROUND_MODE_BOUND:
     	case PLAYGROUND_MODE_ON_OFF:
 			instance->PlayEventHandler(event, code);
-			break;
-		case APP_MODE_SUPER_DIAL:
-			instance->SurfaceDialEventHandler(event, code);
-			break;
-		case APP_MODE_HOME_ASSISTANT:
-			instance->HassEventHandler(event, code);
 			break;
 		default:
 			break;

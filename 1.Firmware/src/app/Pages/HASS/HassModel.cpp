@@ -14,7 +14,7 @@ HassModel::HassModel()
 void HassModel::GetKnobStatus(PlaygroundInfo *info)
 {
     PlaygroundModel::GetKnobStatus(info);
-	info->is_ble_connected = HAL::surface_dial_is_connected();
+//	info->is_ble_connected = HAL::surface_dial_is_connected();
 }
 
 
@@ -26,4 +26,14 @@ void HassModel::Init()
 void HassModel::Deinit()
 {
     PlaygroundModel::Deinit();
+}
+
+void HassModel::ChangeMotorMode(int mode)
+{
+	PlaygroundModel::ChangeMotorMode(mode);
+}
+
+void HassModel::SetPlaygroundMode(int16_t mode)
+{
+	PlaygroundModel::SetPlaygroundMode(mode);
 }

@@ -1,16 +1,15 @@
-#ifndef __HASS_HAL_COMM_H__
-#define __HASS_HAL_COMM_H__
+#ifndef __HASS_DEVICE_SYNC_COMM_H__
+#define __HASS_DEVICE_SYNC_COMM_H__
 
-#include "HassModel.h"
-#include "HassView.h"
-
+#include "HassDeviceSyncModel.h"
+#include "HassDeviceSyncView.h"
 namespace Page
 {
-	class HassHalComm : public PageBase
+	class HassDeviceSyncComm : public PageBase
 	{
 	 public:
-		HassHalComm();
-		virtual ~HassHalComm();
+		HassDeviceSyncComm();
+		virtual ~HassDeviceSyncComm();
 
 		virtual void onCustomAttrConfig();
 		virtual void onViewLoad();
@@ -20,23 +19,21 @@ namespace Page
 		virtual void onViewWillDisappear();
 		virtual void onViewDidDisappear();
 		virtual void onViewDidUnload();
-
-		void HassEventHandler(lv_event_t* event, lv_event_code_t code);
+		void HassDeviceSyncEventHandler(lv_event_t* event, lv_event_code_t code);
 
 	 private:
 		void Update();
 		void AttachEvent(lv_obj_t* obj);
 		static void onTimerUpdate(lv_timer_t* timer);
 		static void onEvent(lv_event_t* event);
+		void hass_device_sync_init();
+		void hass_device_do_sync(int knob_value);
 
-		static void hass_hal_init();
-		int hass_hal_send(const char* device_name, int knob_value);
 	 private:
-		HassView* View;
-		HassModel* Model;
+		HassDeviceSyncView* View;
+		HassDeviceSyncModel* Model;
 		lv_timer_t* timer;
 	};
+
 }
-
-
-#endif /*   __HASS_HAL_COMM_H__ */
+#endif
