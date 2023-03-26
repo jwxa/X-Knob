@@ -83,7 +83,7 @@ void Page::PlaygroundView::UpdateView(PlaygroundInfo *info)
 	}
 
 	lv_label_set_text_fmt(
-		ui.lable_value,
+		ui.label_value,
 		"%d",
 		_value
 	);
@@ -187,12 +187,12 @@ void PlaygroundView::Create(lv_obj_t* root)
 
 	//Write codes screen_label_1
 
-	ui.lable_value = lv_label_create(root);
-	lv_obj_set_pos(ui.lable_value, 70, 67);
-	lv_obj_set_size(ui.lable_value, 100, 32);
-	lv_obj_set_scrollbar_mode(ui.lable_value, LV_SCROLLBAR_MODE_OFF);
-	lv_label_set_text(ui.lable_value, "0");
-	lv_label_set_long_mode(ui.lable_value, LV_LABEL_LONG_WRAP);
+	ui.label_value = lv_label_create(root);
+	lv_obj_set_pos(ui.label_value, 70, 67);
+	lv_obj_set_size(ui.label_value, 100, 32);
+	lv_obj_set_scrollbar_mode(ui.label_value, LV_SCROLLBAR_MODE_OFF);
+	lv_label_set_text(ui.label_value, "0");
+	lv_label_set_long_mode(ui.label_value, LV_LABEL_LONG_WRAP);
 
 	//Write style state: LV_STATE_DEFAULT for lable_style
 	static lv_style_t lable_style;
@@ -211,7 +211,7 @@ void PlaygroundView::Create(lv_obj_t* root)
 	lv_style_set_pad_right(&lable_style, 0);
 	lv_style_set_pad_top(&lable_style, 8);
 	lv_style_set_pad_bottom(&lable_style, 0);
-	lv_obj_add_style(ui.lable_value, &lable_style, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_add_style(ui.label_value, &lable_style, LV_PART_MAIN|LV_STATE_DEFAULT);
 
 
 	ui.group = lv_group_create();
