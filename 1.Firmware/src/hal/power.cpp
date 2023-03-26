@@ -3,7 +3,7 @@
 #include "config.h"
 #include <driver/rtc_io.h>
 
-void HAL::power_init(void) 
+void HAL::power_init()
 {
     pinMode(BATTERY_OFF_PIN, OUTPUT);
     digitalWrite(BATTERY_OFF_PIN, LOW);  //
@@ -12,7 +12,7 @@ void HAL::power_init(void)
     digitalWrite(ON_OFF_PIN, HIGH);
 }
 
-void HAL::power_off(void) 
+void HAL::power_off()
 {
     /* 
      * ___-__----..

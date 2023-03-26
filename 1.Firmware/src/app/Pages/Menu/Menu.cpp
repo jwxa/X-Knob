@@ -26,8 +26,8 @@ void Menu::onViewLoad()
 	AttachEvent(View.ui.switches.icon, onPlaygroundEvent);
 	AttachEvent(View.ui.hass.icon, onHassEvent);
 	AttachEvent(View.ui.system.icon, onSystemEvent);
+	AttachEvent(View.ui.battery.icon, onBatteryEvent);
 	// AttachEvent(View.ui.imu.icon);
-	// AttachEvent(View.ui.battery.icon);
 	// AttachEvent(View.ui.storage.icon);
 }
 
@@ -88,6 +88,13 @@ void Menu::Update()
 		VERSION_COMPILER,
 		VERSION_BUILD_TIME
 	);
+
+	/* Power */
+	int usage;
+	float voltage;
+	Model.GetBatteryInfo(&usage, &voltage, buf, sizeof(buf));
+//	printf("usage:%i ,voltage:%f",usage,voltage);
+	View.SetBattery(usage, voltage, buf);
 }
 
 void Menu::onTimerUpdate(lv_timer_t* timer)
@@ -123,6 +130,17 @@ void Menu::onSystemEvent(lv_event_t* event)
 	}
 }
 
+void Menu::onBatteryEvent(lv_event_t* event)
+{
+	lv_obj_t* obj = lv_event_get_target(event);
+	lv_event_code_t code = lv_event_get_code(event);
+	auto* instance = (Menu*)lv_obj_get_user_data(obj);
+
+	if (code == LV_EVENT_PRESSED)
+	{
+		printf("Menu: onBatteryEvent LV_EVENT_PRESSED\n");
+	}
+}
 
 void Menu::onSuperDialEvent(lv_event_t* event)
 {

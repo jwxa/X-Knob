@@ -5,22 +5,22 @@ BleKeyboard bleKeyboard("Surface Dial(X)");
 
 
 
-void HAL::surface_dial_init(void)
+void HAL::surface_dial_init()
 {
     bleKeyboard.begin();
 }
 
-bool HAL::surface_dial_is_connected(void)
+bool HAL::surface_dial_is_connected()
 {
     return bleKeyboard.isConnected();
 }
 
-void HAL::surface_dial_press(void)
+void HAL::surface_dial_press()
 {
     bleKeyboard.sendDialReport(DIAL_PRESS);
 }
 
-void HAL::surface_dial_release(void)
+void HAL::surface_dial_release()
 {
     bleKeyboard.sendDialReport(DIAL_RELEASE);
 }

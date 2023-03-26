@@ -74,7 +74,7 @@ int onEvent(Account* account, Account::EventParam_t* param)
     } else {
         arc_offset = 0;
     }
-    // Serial.printf("now_pos:%d, last_pos: %d knob_value:%d, arch offset: %f\n", 
+    // Serial.printf("now_pos:%d, last_pos: %d knob_value:%d, arch offset: %f\n",
     //         now_pos, last_pos, knob_value, info->angle_offset);
     if (now_pos > last_pos)
     {

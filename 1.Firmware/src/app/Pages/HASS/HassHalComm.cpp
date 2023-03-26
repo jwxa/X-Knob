@@ -11,7 +11,7 @@ const char* playload_str[]{
 };
 
 const int motor_mode = MOTOR_SUPER_DIAL;
-const int app_mode = APP_MODE_SUPER_DIAL;
+const int app_mode = APP_MODE_HOME_ASSISTANT;
 
 HassHalComm::HassHalComm()
 {
@@ -24,7 +24,7 @@ HassHalComm::~HassHalComm()
 
 void Page::HassHalComm::hass_hal_init(void)
 {
-	HAL::mqtt_init();
+	HassDeviceManager::hass_device_task_init();
 }
 
 int Page::HassHalComm::hass_hal_send(const char* device_name, int knob_value)
@@ -56,7 +56,6 @@ void HassHalComm::onViewLoad()
 	printf("HassHalComm: onViewLoad\n");
 	Model = new HassModel();
 	View = new HassView();
-	hass_hal_init();
 
 	Model->Init();
 	View->Create(root);
@@ -64,10 +63,17 @@ void HassHalComm::onViewLoad()
 	AttachEvent(root);
 	AttachEvent(View->ui.meter);
 	//APP_MODE_HOME_ASSISTANT
-	AttachEvent(((HassView*)View)->m_ui.fan.cont);
-	AttachEvent(((HassView*)View)->m_ui.monitor_light.cont);
-	AttachEvent(((HassView*)View)->m_ui.air_conditioning.cont);
-	AttachEvent(((HassView*)View)->m_ui.wash_machine.cont);
+
+	uint16_t device_len = ((HassView*)View)->m_ui.device_len;
+	for (int i = 0; i < device_len; ++i)
+	{
+		device_t device = ((HassView*)View)->m_ui.device_arr[i];
+		AttachEvent(device.cont);
+	}
+//	AttachEvent(((HassView*)View)->m_ui.fan.cont);
+//	AttachEvent(((HassView*)View)->m_ui.monitor_light.cont);
+//	AttachEvent(((HassView*)View)->m_ui.air_conditioning.cont);
+//	AttachEvent(((HassView*)View)->m_ui.wash_machine.cont);
 	AttachEvent(((HassView*)View)->m_ui.settings.cont);
 }
 
@@ -84,6 +90,7 @@ void HassHalComm::onViewDidLoad()
 
 void HassHalComm::onViewWillAppear()
 {
+	printf("HassHalComm: onViewWillAppear\n");
 	Model->ChangeMotorMode(motor_mode);
 	Model->SetPlaygroundMode(app_mode);
 	View->SetPlaygroundMode(app_mode);
@@ -175,7 +182,9 @@ void HassHalComm::HassEventHandler(lv_event_t* event, lv_event_code_t code)
 		}
 		else
 		{
-			hass_hal_send(lv_label_get_text(label), HASS_PUSH);
+			uint32_t device_index = lv_obj_get_index(obj);
+			device_t* device = &(((HassView*)View)->m_ui.device_arr[device_index]);
+			hass_hal_send(device -> entity_id, HASS_PUSH);
 		}
 	}
 	else if (code == LV_EVENT_LONG_PRESSED)
@@ -194,7 +203,7 @@ void HassHalComm::HassEventHandler(lv_event_t* event, lv_event_code_t code)
 		// return to memu
 		if (!lv_obj_has_state(obj, LV_STATE_EDITED))
 		{
-			printf("Playground: LV_EVENT_LONG_PRESSED_REPEAT\n");
+			printf("Hass: LV_EVENT_LONG_PRESSED_REPEAT\n");
 			Model->ChangeMotorMode(MOTOR_UNBOUND_COARSE_DETENTS);
 			Manager->Pop();
 		}

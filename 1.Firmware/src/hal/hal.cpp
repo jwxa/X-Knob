@@ -17,6 +17,9 @@ void HAL::Init()
     motor_init();
 
     knob_init();
+	nvs_init();
+	wifi_init();
+	mqtt_init();
     // super_dial_init();
 }
 

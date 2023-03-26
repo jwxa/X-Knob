@@ -8,7 +8,7 @@ void MenuModel::Init()
     account = new Account("MenuModel", AccountSystem::Broker(), 0, this);
     account->Subscribe("Motor");
     // account->Subscribe("IMU");
-    // account->Subscribe("Power");
+     account->Subscribe("Power");
     // account->Subscribe("Storage");
 }
 
@@ -21,19 +21,14 @@ void MenuModel::Deinit()
     }
 }
 
-
-// void MenuModel::GetBatteryInfo(
-//     int* usage,
-//     float* voltage,
-//     char* state, uint32_t len
-// )
-// {
-//     HAL::Power_Info_t power;
-//     account->Pull("Power", &power, sizeof(power));
-//     *usage = power.usage;
-//     *voltage = power.voltage / 1000.0f;
-//     strncpy(state, power.isCharging ? "CHARGE" : "DISCHARGE", len);
-// }
+void MenuModel::GetBatteryInfo(int* usage, float* voltage, char* state, uint32_t len)
+{
+	HAL::Power_Info_t power;
+	account->Pull("Power", &power, sizeof(power));
+	*usage = power.usage;
+	*voltage = power.voltage / 1000.0f;
+	strncpy(state, power.isCharging ? "CHARGE" : "DISCHARGE", len);
+}
 
 // void MenuModel::GetStorageInfo(
 //     bool* detect,

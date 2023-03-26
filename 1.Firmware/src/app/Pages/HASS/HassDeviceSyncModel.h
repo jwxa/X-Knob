@@ -4,13 +4,10 @@
 #include "../Playground/PlaygroundView.h"
 #include "../Playground/PlaygroundModel.h"
 
-typedef struct
+typedef struct HassDeviceSyncInfo : PlaygroundInfo
 {
-	int32_t xkonb_value;
-	int32_t motor_pos;
-	int32_t angle_offset;
-	SuperDialMotion konb_direction;
 	bool mqtt_is_connected;
+
 } HassDeviceSyncInfo;
 
 namespace Page
@@ -23,7 +20,7 @@ namespace Page
 		void Init();
 		void Deinit();
 		void Update(void* pg_ui);
-		void GetKnobStatus(HassDeviceSyncInfo* info);
+		void GetKnobStatus(HassDeviceSyncInfo * info);
 		void ChangeMotorMode(int mode);
 		void SetPlaygroundMode(int16_t mode);
 

@@ -1,5 +1,6 @@
+#include <cstdio>
 #include "MenuView.h"
-
+#include "MenuModel.h"
 using namespace Page;
 
 #define ITEM_HEIGHT_MIN   100
@@ -79,17 +80,17 @@ void MenuView::Create(lv_obj_t* root)
 
 
 
-	// /* Item Battery */
-	// Item_Create(
-	// 	&ui.battery,
-	// 	root,
-	// 	"Battery",
-	// 	"battery_info",
+	 /* Item Battery */
+	 Item_Create(
+	 	&ui.battery,
+	 	root,
+	 	"Battery",
+	 	"battery_info",
 
-	// 	"Usage\n"
-	// 	"Voltage\n"
-	// 	"Status"
-	// );
+	 	"Usage\n"
+	 	"Voltage\n"
+	 	"Status"
+	 );
 
 	// /* Item Storage */
 	// Item_Create(
@@ -117,10 +118,10 @@ void MenuView::Group_Init()
 	lv_group_add_obj(ui.group, ui.switches.icon);
 	lv_group_add_obj(ui.group, ui.hass.icon);
 	lv_group_add_obj(ui.group, ui.system.icon);
-	// lv_group_add_obj(ui.group, ui.battery.icon);
+	lv_group_add_obj(ui.group, ui.battery.icon);
 	// lv_group_add_obj(ui.group, ui.storage.icon);
 
-	lv_group_focus_obj(ui.switches.icon);
+	lv_group_focus_obj(ui.hass.icon);
 }
 
 void MenuView::Delete()
@@ -283,3 +284,30 @@ void MenuView::SetSystem(
 		bulidTime
 	);
 }
+
+void MenuView::SetBattery(int usage, float voltage, char* state)
+{
+//	char usage_str[10];
+//	itoa(usage, usage_str, 10);
+//	printf("usage_str:%s", usage_str);
+//	char voltage_str[10];
+//	itoa((int)voltage, voltage_str, 10);
+//	itoa(usage,usage_str,10);
+//	int voltage_int = (int) voltage;
+//	char* voltage_str = nullptr;
+//	itoa(voltage_int,voltage_str,10);
+
+//	printf("usage_str:%s",usage_str);
+//todo 剩余电量
+//	lv_label_set_text_fmt(
+//		ui.battery.labelData,
+//		"%s%%\n"
+//		"%sV\n"
+//		"%s",
+//		usage_str,
+//		voltage_str,
+//		state
+//	);
+}
+
+

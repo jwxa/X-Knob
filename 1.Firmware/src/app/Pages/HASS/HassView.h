@@ -4,19 +4,26 @@
 #include "app/app.h"
 #include "../Page.h"
 #include "../Playground/PlaygroundView.h"
+#include "app/Utils/HassDeviceManager/HassDeviceManager.h"
 #include <map>
 
 enum HASS_VIEW_MODE {
     VIEW_MODE_ON_OFF = 1,
 };
 
+enum VIEW_TYPE {
+	DEVICE = 0,
+	SETTINGS = 1
+};
+
 typedef struct
 {
     lv_obj_t* cont;   // include icon and label
     lv_obj_t* l_dev_name;
-    int type;
+    uint8_t type;
     bool is_on_off;  
     bool is_set_value;
+	char* entity_id;
 } device_t;
 
 namespace Page
@@ -38,10 +45,12 @@ public:
     int GetViewMode(void);
     struct
     {
-        device_t fan;
-        device_t monitor_light;
-        device_t air_conditioning;
-        device_t wash_machine;
+//        device_t fan;
+//        device_t monitor_light;
+//        device_t air_conditioning;
+//        device_t wash_machine;
+		device_t* device_arr;
+		uint16_t device_len;
         device_t settings;
         lv_obj_t* foucs_label;
         lv_group_t* group;
@@ -59,11 +68,11 @@ private:
     } style;
     void group_init(void);
     void style_init(void);
-    void device_item_create(device_t* item, lv_obj_t* par,
-        const char* name, const char* img_src,
+    void device_item_create(device_t** item, lv_obj_t* par,
+        const char* name, char* entity_id, const char* img_src,
         bool is_on_off, bool is_set_value);
     void device_item_create_settings(device_t* item, lv_obj_t* par,
-        const char* name);
+		char* name);
     void AttachEvent(lv_obj_t* obj);
 
 };

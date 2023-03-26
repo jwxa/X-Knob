@@ -137,7 +137,7 @@ void onPid(char* cmd){commander.pid(&motor.PID_velocity, cmd);}
 void onMotor(char* cmd){commander.motor(&motor, cmd);}
 // -------------monitor--------------------
 //目标变量
-static float readMySensorCallback(void) {
+static float readMySensorCallback() {
     hspi->beginTransaction(SPISettings(spiClk, MSBFIRST, SPI_MODE0));
     digitalWrite(hspi->pinSS(), LOW);  // pull SS slow to prep other end for transfer
     uint16_t ag = hspi->transfer16(0);
@@ -150,7 +150,7 @@ static float readMySensorCallback(void) {
     }
     return rad;
 }
-static void initMySensorCallback(void) {
+static void initMySensorCallback() {
     hspi = new SPIClass(HSPI);
     hspi->begin(MT6701_SCL, MT6701_SDA, -1, MT6701_SS); //SCLK, MISO, MOSI, SS
     pinMode(hspi->pinSS(), OUTPUT); //HSPI SS
@@ -184,7 +184,7 @@ void HAL::motor_shake(int strength, int delay_time)
 }
 
 
-int HAL::get_motor_position(void)
+int HAL::get_motor_position()
 {
     return motor_config.position;
 }
@@ -319,7 +319,7 @@ void TaskMotorUpdate(void *pvParameters)
 }
 
 
-void HAL::motor_init(void)
+void HAL::motor_init()
 {
     // update_motor_status(MOTOR_INIT);
     // initialize sensor hardware

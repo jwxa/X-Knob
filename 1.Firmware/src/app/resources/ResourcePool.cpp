@@ -58,6 +58,7 @@ do{\
         // IMPORT_IMG(circle_blue);
         IMPORT_IMG(dot_blue);
         IMPORT_IMG(macos);
+		IMPORT_IMG(icon);
 
         // HASS
         IMPORT_IMG(home);

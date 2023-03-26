@@ -26,9 +26,8 @@ namespace Page
 		void AttachEvent(lv_obj_t* obj);
 		static void onTimerUpdate(lv_timer_t* timer);
 		static void onEvent(lv_event_t* event);
-		void hass_device_sync_init();
-		void hass_device_do_sync(int knob_value);
-
+		static void hass_device_sync_init();
+		static void hass_device_sync_completed();
 	 private:
 		HassDeviceSyncView* View;
 		HassDeviceSyncModel* Model;

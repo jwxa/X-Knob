@@ -43,6 +43,8 @@ public:
         const char* bulidTime
     );
 
+	void SetBattery(int usage, float voltage, char* state);
+
     void SetScrollToY(lv_obj_t* obj, lv_coord_t y, lv_anim_enable_t en);
     static void onFocus(lv_group_t* e);
 

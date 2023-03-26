@@ -2,7 +2,7 @@
 using namespace Page;
 
 const int motor_mode = MOTOR_UNBOUND_COARSE_DETENTS;
-const int app_mode = APP_MODE_HOME_ASSISTANT;
+const int app_mode = APP_MODE_SUPER_DIAL;
 
 SurfaceDial::SurfaceDial()
 {

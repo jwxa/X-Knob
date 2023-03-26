@@ -5,7 +5,7 @@
 #include "../Playground/PlaygroundView.h"
 #include "../Playground/PlaygroundModel.h"
 
-typedef struct A : PlaygroundInfo
+typedef struct SurfaceDialInfo : PlaygroundInfo
 {
 	bool is_ble_connected;
 } SurfaceDialInfo;

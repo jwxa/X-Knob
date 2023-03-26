@@ -25,31 +25,36 @@ namespace HAL
     void Update();
 
     void knob_init();
-    void knob_update(void);
-    bool encoder_is_pushed(void);
+    void knob_update();
+    bool encoder_is_pushed();
 
-    void motor_init(void);
+    void motor_init();
     // void TaskMotorUpdate(void *pvParameters);
-    int get_motor_position(void);
+    int get_motor_position();
     void update_motor_mode(int mode);
     void motor_shake(int strength, int delay_time);
 
-    void surface_dial_init(void);
+    void surface_dial_init();
     void surface_dial_update(SuperDialMotion direction);
-    void surface_dial_release(void);
-    void surface_dial_press(void);
-    bool surface_dial_is_connected(void);
+    void surface_dial_release();
+    void surface_dial_press();
+    bool surface_dial_is_connected();
 
-    void power_init(void);
-    void power_off(void);
+    void power_init();
+    void power_off();
 
-    bool is_encoder_enabled(void);
-    void encoder_disable(void);
-    void encoder_enable(void);
+    bool is_encoder_enabled();
+    void encoder_disable();
+    void encoder_enable();
 
-    void mqtt_init(void);
+	void nvs_init();
+	void wifi_init();
+
+    void mqtt_init();
     int mqtt_publish(const char *topic, const char *playload);
-    int mqtt_subscribe(const char *topic);
+	int mqtt_subscribe(const char *topic);
+	int mqtt_unsubscribe(const char *topic);
+	bool is_mqtt_connected();
 }
 
 

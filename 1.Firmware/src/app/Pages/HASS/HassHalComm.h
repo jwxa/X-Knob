@@ -21,6 +21,7 @@ namespace Page
 		virtual void onViewDidDisappear();
 		virtual void onViewDidUnload();
 
+		static void hass_hal_init();
 		void HassEventHandler(lv_event_t* event, lv_event_code_t code);
 
 	 private:
@@ -29,7 +30,6 @@ namespace Page
 		static void onTimerUpdate(lv_timer_t* timer);
 		static void onEvent(lv_event_t* event);
 
-		static void hass_hal_init();
 		int hass_hal_send(const char* device_name, int knob_value);
 	 private:
 		HassView* View;

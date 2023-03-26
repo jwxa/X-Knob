@@ -13,11 +13,14 @@ namespace Page
 		void Create(lv_obj_t* root);
 		void Delete();
 		void UpdateView(HassDeviceSyncInfo* info);
+		void UpdateBackgroundView(HassDeviceSyncInfo* info);
+		void SetPlaygroundMode(int16_t mode);
 
 	 public:
 		struct
 		{
-			lv_obj_t* img_sync_status;
+			lv_obj_t* sync_mqtt_status_label;
+			lv_obj_t* sync_status_msg_label;
 		} m_ui;
 
 	};
