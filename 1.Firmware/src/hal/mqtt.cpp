@@ -63,6 +63,8 @@ void mqttCallback(char* topic, const byte* payload, unsigned int length)
 	}
 	// 释放cJSON_CreateObject ()分配出来的内存空间
 	cJSON_Delete(pJsonRoot);
+	// 释放msg
+	cJSON_free(msg_body);
 }
 
 void connectMQTT()

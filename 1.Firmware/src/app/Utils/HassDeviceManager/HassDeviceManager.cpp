@@ -59,8 +59,7 @@ bool is_nvs_busy = false;
 					hass_device_info.entity_id = hassDevice.entity_id;
 					hass_device_info.type = hassDevice.type;
 					hass_device_info.friendly_name = hassDevice.friendly_name;
-					const char* HOME_BULB_IMG_SRC = "home_bulb";
-					hass_device_info.img_src = HOME_BULB_IMG_SRC;
+					hass_device_info.img_src = "home_bulb";
 					hass_device_info.device_type = DEVICE;
 					hass_device_info.is_on_off = true;
 					hass_device_info.is_set_value = true;
@@ -90,16 +89,23 @@ bool is_nvs_busy = false;
 		}
 		//开始解析以及发送mqtt获取设备状态
 		{
-			//todo
 			for (int i = 0; i < nvs_hass_device_info_arr_length; ++i)
 			{
 				hass_device_info_t hass_device_info = nvs_hass_device_info_arr[i];
 				char* entity_id = hass_device_info.entity_id;
 				char topic_name[128];
-				snprintf(topic_name, sizeof(topic_name), "%s/HOME/%s", MQTT_HOST, entity_id);
-				HAL::mqtt_publish(topic_name, "SYNC");
+				snprintf(topic_name, sizeof(topic_name), "%s/HOME/device/%s", MQTT_HOST, entity_id);
+				cJSON* root = cJSON_CreateObject();
+				cJSON_AddStringToObject(root, "action", "SYNC");
+				cJSON_AddStringToObject(root, "entity_id", entity_id);
+				char* msg = cJSON_Print(root);
+				HAL::mqtt_publish(topic_name, msg);
+				//释放cJson的root节点下的所有内存
+				cJSON_Delete(root);
+				//释放生成的json字符串的内存
+				cJSON_free(msg);
 			}
-			delay(1000);
+			delay(3000);
 		}
 	}
 }
@@ -159,8 +165,8 @@ void HassDeviceManager::onHassDeviceSyncEvent(char* msg_body)
 		char* device_info_json = cJSON_Print(pInfoItem);
 		hass_device_task_delete();
 		bool result = HassDeviceManager::writeHassDeviceIntoNvs(device_info_json);
-		//这里没必要释放内存，统一交给父节点的删除，否则反而会报错
-		//cJSON_Delete(pInfoItem);
+		//这里需要主动释放的是json生成的字符串的内存
+		cJSON_free(device_info_json);
 		if (result)
 		{
 			//写入成功后做点啥?

@@ -31,7 +31,6 @@ void HassView::SetCtrView(lv_obj_t* obj, lv_obj_t* root)
 	printf("HassView: SetCtrView device->is_set_value:%d\n", device->is_set_value);
 	printf("HassView: SetCtrView device->is_on_off:%d\n", device->is_on_off);
 	printf("HassView: SetCtrView device->entity_id:%s\n", device->entity_id);
-	//todo 为什么值会变
 	if (device->type == 0)
 	{
 		if (device->is_set_value)
