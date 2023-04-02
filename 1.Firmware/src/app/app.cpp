@@ -44,6 +44,7 @@ void App_Init()
 	manager.Install("Playground", "Pages/Playground");
 	manager.Install("SurfaceDial", "Pages/SurfaceDial");
 	manager.Install("Hass","Pages/Hass");
+	manager.Install("HassDeviceSync","Pages/HassDeviceSync");
     // manager.Install("Scene3D", "Pages/Scene3D");
 
     manager.SetGlobalLoadAnimType(PageManager::LOAD_ANIM_OVER_TOP, 500);

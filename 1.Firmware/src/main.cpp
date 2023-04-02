@@ -4,6 +4,7 @@
 #include "usb_cdc.h"
 #include "app/ui/ui.h"
 #include "hal/hal.h"
+#include "app/Utils/HassDeviceManager/HassDeviceManager.h"
 
 void push_handler(ButtonEvent* btn, int event)
 {
@@ -23,11 +24,12 @@ void push_handler(ButtonEvent* btn, int event)
 }
 
 void setup() {
-    HAL::Init();
-    strip_init();
+	HAL::Init();
+	strip_init();
     // HWSerial.begin(115200);
     display_init();
     App_Init();
+	HassDeviceManager::Init();
     // INIT_DONE();
 }
 

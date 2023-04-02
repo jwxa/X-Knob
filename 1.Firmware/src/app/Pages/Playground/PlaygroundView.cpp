@@ -139,38 +139,46 @@ void PlaygroundView::Create(lv_obj_t* root)
 	lv_obj_set_size(root, LV_HOR_RES, LV_VER_RES);
 	lv_obj_set_style_bg_color(root, lv_color_black(), 0);
 	lv_obj_set_style_bg_opa(root, LV_OPA_COVER, 0);
-	
-	//Write codes meter
+
+	//Write codes meter 创建一个时钟控件
 	ui.meter = lv_meter_create(root);
 	lv_obj_set_pos(ui.meter, 1, 0);
 	lv_obj_set_size(ui.meter, LV_HOR_RES, LV_VER_RES);
 	lv_obj_set_scrollbar_mode(ui.meter, LV_SCROLLBAR_MODE_OFF);
 
-	//add scale ui.scale_circle
+	/*Remove the circle from the middle*/
+	lv_obj_remove_style(ui.meter, NULL, LV_PART_INDICATOR);
+	lv_obj_remove_style(ui.meter, NULL, LV_PART_ITEMS);
+
+	//add scale ui.scale_circle 设置刻度的颜色和范围
 	ui.scale_pot = lv_meter_add_scale(ui.meter);
-	lv_meter_set_scale_ticks(ui.meter, ui.scale_pot, 41, 2, 0, lv_color_make(0xff, 0x00, 0x00));
+	lv_meter_set_scale_ticks(ui.meter, ui.scale_pot, 41, 2, 0, lv_color_black());
 	lv_meter_set_scale_range(ui.meter, ui.scale_pot, 0, 360, 360, 270);
 
-	//add needle img for ui.scale_circle
-	ui.nd_img_circle = lv_meter_add_needle_img(ui.meter, ui.scale_pot,Resource.GetImage("dot_blue"), -100, 8);
+	//add needle img for ui.scale_circle 创建蓝点 设置指针指向0
+	ui.nd_img_circle = lv_meter_add_needle_img(ui.meter, ui.scale_pot, Resource.GetImage("dot_blue"), -100, 8);
 	lv_meter_set_indicator_value(ui.meter, ui.nd_img_circle, 0);
 
 	//add scale ui.scale_value
 	ui.scale_arc = lv_meter_add_scale(ui.meter);
-	lv_meter_set_scale_ticks(ui.meter, ui.scale_arc, 41, 0, 0, lv_color_make(0xff, 0x00, 0x00));
+	lv_meter_set_scale_ticks(ui.meter, ui.scale_arc, 41, 0, 0, lv_color_black());
 	lv_meter_set_scale_range(ui.meter, ui.scale_arc, 0, 100, 360, ARC_START_ROTATION);
 
 	//add arc for ui.scale_value
-	ui.arc = lv_meter_add_arc(ui.meter, ui.scale_arc, 6, lv_color_make(0xff, 0x00, 0x00), 5);
+	ui.arc = lv_meter_add_arc(ui.meter, ui.scale_arc, 6, lv_color_black(), 5);
 	lv_meter_set_indicator_start_value(ui.meter, ui.arc, 0);
 	lv_meter_set_indicator_end_value(ui.meter, ui.arc, 0);
 
 	//Write style state: LV_STATE_DEFAULT for meter_style
 	lv_style_init(&style.meter);
 	lv_style_set_radius(&style.meter, 240);
+	//设置背景颜色
 	lv_style_set_bg_color(&style.meter, lv_color_black());
+	//背景的渐变颜色
 	lv_style_set_bg_grad_color(&style.meter, lv_color_make(128,0,128));
+	//背景渐变的方向
 	lv_style_set_bg_grad_dir(&style.meter, LV_GRAD_DIR_VER);
+	//背景颜色透明度
 	lv_style_set_bg_opa(&style.meter, 255);
 	lv_style_set_bg_main_stop(&style.meter, 255);
 	lv_style_set_bg_grad_stop(&style.meter, 255);
@@ -185,8 +193,7 @@ void PlaygroundView::Create(lv_obj_t* root)
 	lv_style_set_text_font(&style.ticks, &lv_font_montserrat_14);
 	lv_obj_add_style(ui.meter, &style.ticks, LV_PART_TICKS|LV_STATE_DEFAULT);
 
-	//Write codes screen_label_1
-
+	//Write codes screen_label_1 圆点上方label
 	ui.label_value = lv_label_create(root);
 	lv_obj_set_pos(ui.label_value, 70, 67);
 	lv_obj_set_size(ui.label_value, 100, 32);
@@ -194,24 +201,24 @@ void PlaygroundView::Create(lv_obj_t* root)
 	lv_label_set_text(ui.label_value, "0");
 	lv_label_set_long_mode(ui.label_value, LV_LABEL_LONG_WRAP);
 
-	//Write style state: LV_STATE_DEFAULT for lable_style
-	static lv_style_t lable_style;
-	lv_style_init(&lable_style);
-	lv_style_set_radius(&lable_style, 0);
-	lv_style_set_bg_color(&lable_style, lv_color_make(0x0f, 0x0f, 0x0f));
-	lv_style_set_bg_grad_color(&lable_style, lv_color_make(0x21, 0x95, 0xf6));
-	lv_style_set_bg_grad_dir(&lable_style, LV_GRAD_DIR_NONE);
-	lv_style_set_bg_opa(&lable_style, 0);  // 完全透明
-	lv_style_set_text_color(&lable_style, lv_color_make(0xff, 0xff, 0xff));
-	lv_style_set_text_font(&lable_style, &lv_font_montserrat_26);
-	lv_style_set_text_letter_space(&lable_style, 2);
-	lv_style_set_text_line_space(&lable_style, 0);
-	lv_style_set_text_align(&lable_style, LV_TEXT_ALIGN_CENTER);
-	lv_style_set_pad_left(&lable_style, 0);
-	lv_style_set_pad_right(&lable_style, 0);
-	lv_style_set_pad_top(&lable_style, 8);
-	lv_style_set_pad_bottom(&lable_style, 0);
-	lv_obj_add_style(ui.label_value, &lable_style, LV_PART_MAIN|LV_STATE_DEFAULT);
+	//Write style state: LV_STATE_DEFAULT for label_style 还是圆点上方label
+	static lv_style_t label_style;
+	lv_style_init(&label_style);
+	lv_style_set_radius(&label_style, 0);
+	lv_style_set_bg_color(&label_style, lv_color_make(0x0f, 0x0f, 0x0f));
+	lv_style_set_bg_grad_color(&label_style, lv_color_make(0x21, 0x95, 0xf6));
+	lv_style_set_bg_grad_dir(&label_style, LV_GRAD_DIR_NONE);
+	lv_style_set_bg_opa(&label_style, 0);  // 完全透明
+	lv_style_set_text_color(&label_style, lv_color_make(0xff, 0xff, 0xff));
+	lv_style_set_text_font(&label_style, &lv_font_montserrat_26);
+	lv_style_set_text_letter_space(&label_style, 2);
+	lv_style_set_text_line_space(&label_style, 0);
+	lv_style_set_text_align(&label_style, LV_TEXT_ALIGN_CENTER);
+	lv_style_set_pad_left(&label_style, 0);
+	lv_style_set_pad_right(&label_style, 0);
+	lv_style_set_pad_top(&label_style, 8);
+	lv_style_set_pad_bottom(&label_style, 0);
+	lv_obj_add_style(ui.label_value, &label_style, LV_PART_MAIN|LV_STATE_DEFAULT);
 
 
 	ui.group = lv_group_create();

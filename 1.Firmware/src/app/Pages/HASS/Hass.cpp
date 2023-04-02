@@ -13,11 +13,6 @@ const char* playload_str[] {
 const int motor_mode = MOTOR_SUPER_DIAL;
 const int app_mode = APP_MODE_HOME_ASSISTANT;
 
-void hass_hal_init(void)
-{
-	HAL::mqtt_init();
-}
-
 int hass_hal_send(const char *device_name, int knob_value)
 {
 	char topic_name[128];
@@ -54,8 +49,6 @@ void Hass::onViewLoad()
 	Model = new HassModel();
 	View = new HassView();
 
-	hass_hal_init();
-
 	Model->Init();
 	View->Create(root);
 
@@ -63,10 +56,13 @@ void Hass::onViewLoad()
 	AttachEvent(View->ui.meter);
 	//APP_MODE_HOME_ASSISTANT
 
-	AttachEvent(((HassView*)View)->m_ui.fan.cont);
-	AttachEvent(((HassView*)View)->m_ui.monitor_light.cont);
-	AttachEvent(((HassView*)View)->m_ui.air_conditioning.cont);
-	AttachEvent(((HassView*)View)->m_ui.wash_machine.cont);
+	uint16_t device_len = ((HassView*)View)->m_ui.device_len;
+	for (int i = 0; i < device_len; ++i)
+	{
+		device_t device = ((HassView*)View)->m_ui.device_arr[i];
+		AttachEvent(device.cont);
+	}
+	AttachEvent(((HassView*)View)->m_ui.settings.cont);
 }
 
 void Hass::AttachEvent(lv_obj_t* obj)
@@ -142,42 +138,59 @@ void Hass::HassEventHandler(lv_event_t* event, lv_event_code_t code)
 	lv_obj_t* obj = lv_event_get_target(event);
 	lv_obj_t* label = lv_obj_get_child(obj, 1);
 
-	if (code < LV_EVENT_RELEASED) {
+	if (code < LV_EVENT_RELEASED)
+	{
 		printf("code: %d\n", code);
 	}
 
-	if (code == LV_EVENT_FOCUSED) {
-		if (label != NULL) {
+	if (code == LV_EVENT_FOCUSED)
+	{
+		if (label != NULL)
+		{
 			printf("fouces, name:%s\n", lv_label_get_text(label));
 			((HassView*)View)->UpdateFocusedDevice(lv_label_get_text(label));
 		}
 	}
 	if (code == LV_EVENT_PRESSED)
 	{
-		if (!lv_obj_has_state(obj, LV_STATE_EDITED)) {
-			if (label != NULL) {
+		printf("Hass: LV_EVENT_PRESSED\n");
+		if (!lv_obj_has_state(obj, LV_STATE_EDITED))
+		{
+			if (label != NULL)
+			{
 				printf("Control device: %s\n", lv_label_get_text(label));
 			}
 			lv_obj_add_state(obj, LV_STATE_EDITED);
 			((HassView*)View)->SetCtrView(obj);
 			HAL::encoder_disable();
-			if (((HassView*)View)->GetViewMode() == VIEW_MODE_ON_OFF) {
+			if (((HassView*)View)->GetViewMode() == VIEW_MODE_ON_OFF)
+			{
 				Model->ChangeMotorMode(MOTOR_ON_OFF_STRONG_DETENTS);
 			}
-		} else {
-			hass_hal_send(lv_label_get_text(label), HASS_PUSH);
 		}
-	} else if (code == LV_EVENT_LONG_PRESSED) {
+		else
+		{
+			uint32_t device_index = lv_obj_get_index(obj);
+			device_t* device = &(((HassView*)View)->m_ui.device_arr[device_index]);
+			hass_hal_send(device -> entity_id, HASS_PUSH);
+		}
+	}
+	else if (code == LV_EVENT_LONG_PRESSED)
+	{
 		printf("Hass: LV_EVENT_LONG_PRESSED\n");
-		if (lv_obj_has_state(obj, LV_STATE_EDITED)) {
+		if (lv_obj_has_state(obj, LV_STATE_EDITED))
+		{
 			((HassView*)View)->ClearCtrView(obj);
 			lv_obj_clear_state(obj, LV_STATE_EDITED);
 			HAL::encoder_enable();
-			Model->ChangeMotorMode(MOTOR_UNBOUND_COARSE_DETENTS);
+			Model->ChangeMotorMode(motor_mode);
 		}
-	} else if (code == LV_EVENT_LONG_PRESSED_REPEAT) {
+	}
+	else if (code == LV_EVENT_LONG_PRESSED_REPEAT)
+	{
 		// return to memu
-		if (!lv_obj_has_state(obj, LV_STATE_EDITED)){
+		if (!lv_obj_has_state(obj, LV_STATE_EDITED))
+		{
 			printf("Hass: LV_EVENT_LONG_PRESSED_REPEAT\n");
 			Model->ChangeMotorMode(MOTOR_UNBOUND_COARSE_DETENTS);
 			Manager->Pop();

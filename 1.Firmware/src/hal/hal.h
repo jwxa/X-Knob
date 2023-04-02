@@ -47,9 +47,14 @@ namespace HAL
     void encoder_disable(void);
     void encoder_enable(void);
 
+	void nvs_init();
+	void wifi_init();
+
     void mqtt_init(void);
     int mqtt_publish(const char *topic, const char *playload);
     int mqtt_subscribe(const char *topic);
+	int mqtt_unsubscribe(const char *topic);
+	bool is_mqtt_connected();
 }
 
 

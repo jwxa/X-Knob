@@ -28,5 +28,5 @@
 
  // The owner of the X-Knob
 #define MQTT_HOST               "dingmos"        
-
+#define HASS_DEVICE_SYNC_INTERVAL 1000
 #endif 

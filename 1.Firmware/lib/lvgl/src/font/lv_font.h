@@ -238,6 +238,11 @@ LV_FONT_DECLARE(lv_font_simsun_16_cjk)
 #ifdef LV_FONT_CUSTOM_DECLARE
 LV_FONT_CUSTOM_DECLARE
 #endif
+/*Declare the custom (user defined) fonts*/
+
+#if LV_FONT_MYAWESOMEFONT
+LV_FONT_DECLARE(myAwesomeFont)
+#endif
 
 /**
  * Just a wrapper around LV_FONT_DEFAULT because it might be more convenient to use a function is some cases
