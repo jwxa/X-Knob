@@ -3,14 +3,7 @@
 #include "Arduino.h"
 #include "app/app.h"
 #include "../Page.h"
-
-typedef struct
-{
-	int32_t xkonb_value;
-	int32_t motor_pos;
-	int32_t angle_offset;
-	SuperDialMotion konb_direction;
-} PlaygroundInfo;
+#include "PlaygroundModel.h"
 
 namespace Page
 {
@@ -37,7 +30,7 @@ namespace Page
 	 public:
 		struct
 		{
-			lv_obj_t* meter;
+			lv_obj_t* meter; //时钟控件
 			lv_meter_scale_t* scale_pot;   // 圆点的刻度
 			lv_obj_t* label_value;
 			lv_meter_indicator_t* nd_img_circle;

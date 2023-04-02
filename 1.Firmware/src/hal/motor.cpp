@@ -199,6 +199,11 @@ void HAL::update_motor_mode(int mode)
     #endif
 }
 
+void HAL::update_motor_position(int position)
+{
+	motor_config.position = position;
+}
+
 static void motor_status_publish(bool is_outbound)
 {
     // position
@@ -208,7 +213,7 @@ static void motor_status_publish(bool is_outbound)
         MotorStatusInfo info = {
             .is_outbound = is_outbound,
             .position = motor_config.position,
-            .angle_offset = angle_to_detent_center * 180 / PI,  // 转换为角度
+            .angle_offset = static_cast<float>(angle_to_detent_center * 180 / PI),  // 转换为角度
         };
         actMotorStatus->Commit((const void*)&info, sizeof(MotorStatusInfo));
         actMotorStatus->Publish();

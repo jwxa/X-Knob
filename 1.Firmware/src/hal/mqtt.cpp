@@ -14,14 +14,14 @@ int mqtt_last_connect_time_ = 0;
 
 void mqttCallback(char* topic, const byte* payload, unsigned int length)
 {
-	printf("mqttCallback: Message arrived [%s] ,length:%u \n", topic, length);
+//	printf("mqttCallback: Message arrived [%s] ,length:%u \n", topic, length);
 	String readString = "";
 	for (int i = 0; i < length; i++)
 	{
 		readString += (char)payload[i];
 	}
 	const char* json = readString.c_str();
-	printf("mqttCallback: Message: %s\n", json);
+//	printf("mqttCallback: Message: %s\n", json);
 	cJSON* pJsonRoot = cJSON_Parse(json);
 	if (pJsonRoot == NULL)
 	{
@@ -41,12 +41,13 @@ void mqttCallback(char* topic, const byte* payload, unsigned int length)
 	}
 
 	char* msg_type = cJSON_GetStringValue(pJsonMsgType);
-	printf("mqttCallback: msg_type:%s\n", msg_type);
+//	printf("mqttCallback: msg_type:%s\n", msg_type);
 
 	cJSON* pJsonMsgBody = cJSON_GetObjectItem(pJsonRoot, "msg_body");
 	if (pJsonMsgBody == NULL)
 	{
 		printf("mqttCallback: json pJsonMsgBody not found, return\n");
+		printf("mqttCallback: Message: %s\n", json);
 		// 释放cJSON_CreateObject ()分配出来的内存空间
 		cJSON_Delete(pJsonRoot);
 		return;
@@ -54,12 +55,25 @@ void mqttCallback(char* topic, const byte* payload, unsigned int length)
 	char* msg_body = cJSON_Print(pJsonMsgBody);
 	if (strcmp(msg_type, "hass_device_sync") == 0)
 	{
+		//同步ha设备到X-Knob中
 		HassDeviceManager::onHassDeviceSyncEvent(msg_body);
+	}
+	else if(strcmp(msg_type, "hass_device_event") == 0)
+	{
+		//更新X-Knob中的设备状态
+		HassDeviceManager::onHassDeviceStateUpdateEvent(msg_body);
+	}
+	else if (strcmp(msg_type, "hass_device_state_sync") == 0)
+	{
+		//X-Knob定时发起的给nodered的请求,让其将最新的设备状态更新给X-Knob(通过hass_device_event),无需处理
+	}
+	else if (strcmp(msg_type, "hass_device_control") == 0)
+	{
+		//X-Knob定时发起的给nodered的请求,让其请求HA call service,无需处理
 	}
 	else
 	{
-		printf("mqttCallback: unknown msg_type, return\n");
-		return;
+//		printf("mqttCallback: unknown msg_type, return\n");
 	}
 	// 释放cJSON_CreateObject ()分配出来的内存空间
 	cJSON_Delete(pJsonRoot);
@@ -83,6 +97,11 @@ void connectMQTT()
 	if (result)
 	{
 		printf("MQTT connected\n");
+		//连上mqtt后自动绑定
+		char topic_name[128];
+		snprintf(topic_name, sizeof(topic_name), "%s/HOME/device/#", MQTT_HOST);
+		printf("Hass: hass_hal_init mqtt_subscribe topic_name:%s\n",topic_name);
+		HAL::mqtt_subscribe(topic_name);
 	}
 	else
 	{
@@ -134,6 +153,10 @@ int HAL::mqtt_unsubscribe(const char* topic)
 
 int HAL::mqtt_publish(const char* topic, const char* playload)
 {
+	if (!is_mqtt_connected())
+	{
+		return 0;
+	}
 	bool ret = mqtt_client.publish(topic, playload);
 	if (!ret)
 	{
@@ -147,6 +170,7 @@ void HAL::mqtt_init()
 	mqtt_client.setServer(MQTT_SERVER, MQTT_PORT);
 	mqtt_client.setCallback(mqttCallback);
 	mqtt_client.setBufferSize(1024 * 5);
+	mqtt_client.setKeepAlive(60000);
 	xTaskCreatePinnedToCore(
 		TaskMqttUpdate,
 		"MqttThread",

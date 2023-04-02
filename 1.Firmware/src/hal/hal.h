@@ -32,6 +32,7 @@ namespace HAL
     // void TaskMotorUpdate(void *pvParameters);
     int get_motor_position();
     void update_motor_mode(int mode);
+	void update_motor_position(int position);
     void motor_shake(int strength, int delay_time);
 
     void surface_dial_init();

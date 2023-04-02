@@ -9,7 +9,7 @@ using namespace Page;
 void SurfaceDialView::SetPlaygroundMode(int16_t mode)
 {
 	lv_obj_add_flag(ui.label_value, LV_OBJ_FLAG_HIDDEN);
-	lv_meter_set_scale_ticks(ui.meter, ui.scale_pot, 73, 2, 0, lv_color_make(0xff, 0x00, 0x00));
+	lv_meter_set_scale_ticks(ui.meter, ui.scale_pot, 73, 2, 0, lv_color_black());
 	lv_meter_set_scale_range(ui.meter, ui.scale_pot, 0, 72, 360, 270);
 }
 		

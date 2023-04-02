@@ -1,16 +1,16 @@
-#ifndef __HASS_HAL_COMM_H__
-#define __HASS_HAL_COMM_H__
+#ifndef __HASS_H__
+#define __HASS_H__
 
 #include "HassModel.h"
 #include "HassView.h"
 
 namespace Page
 {
-	class HassHalComm : public PageBase
+	class Hass : public PageBase
 	{
 	 public:
-		HassHalComm();
-		virtual ~HassHalComm();
+		Hass();
+		virtual ~Hass();
 
 		virtual void onCustomAttrConfig();
 		virtual void onViewLoad();
@@ -21,7 +21,6 @@ namespace Page
 		virtual void onViewDidDisappear();
 		virtual void onViewDidUnload();
 
-		static void hass_hal_init();
 		void HassEventHandler(lv_event_t* event, lv_event_code_t code);
 
 	 private:
@@ -30,7 +29,6 @@ namespace Page
 		static void onTimerUpdate(lv_timer_t* timer);
 		static void onEvent(lv_event_t* event);
 
-		int hass_hal_send(const char* device_name, int knob_value);
 	 private:
 		HassView* View;
 		HassModel* Model;
@@ -39,4 +37,4 @@ namespace Page
 }
 
 
-#endif /*   __HASS_HAL_COMM_H__ */
+#endif /*   __HASS_H__ */

@@ -26,7 +26,7 @@
 #include "StartUp/StartUp.h"
 #include "Menu/Menu.h"
 #include "Playground/Playground.h"
-#include "HASS/HassHalComm.h"
+#include "HASS/Hass.h"
 #include "HASS/HassDeviceSyncComm.h"
 #include "SurfaceDial/SurfaceDial.h"
 
@@ -47,7 +47,7 @@ PageBase* AppFactory::CreatePage(const char* name)
 	APP_CLASS_MATCH(Playground);
 	APP_CLASS_MATCH(SurfaceDial);
 	APP_CLASS_MATCH(Startup);
-	APP_CLASS_MATCH(HassHalComm);
+	APP_CLASS_MATCH(Hass);
 	APP_CLASS_MATCH(HassDeviceSyncComm);
     // APP_CLASS_MATCH(Scene3D);
 

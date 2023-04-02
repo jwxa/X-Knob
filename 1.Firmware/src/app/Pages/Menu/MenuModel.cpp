@@ -1,6 +1,5 @@
 #include "MenuModel.h"
 #include <stdio.h>
-#include <Arduino.h>
 using namespace Page;
 
 void MenuModel::Init()
@@ -48,7 +47,7 @@ void MenuModel::GetBatteryInfo(int* usage, float* voltage, char* state, uint32_t
 
 void MenuModel::ChangeMotorMode(int mode)
 {
-    Serial.printf("MenuModel: Change Motor Mode\n");
+    printf("MenuModel: Change Motor Mode\n");
     AccountSystem::Motor_Info_t info;
     info.cmd = AccountSystem::MOTOR_CMD_CHANGE_MODE;
     info.motor_mode = mode;

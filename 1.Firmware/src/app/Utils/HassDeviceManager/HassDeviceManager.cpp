@@ -12,6 +12,7 @@
 #include "HassDeviceManager.h"
 #include "config.h"
 #include "app/Pages/HASS/HassView.h"
+#include "app/Accounts/Account_Master.h"
 
 #define HASS_DEVICE_STORAGE_NAMESPACE "HASS_STORAGE"
 const char* HASS_DEVICE_STORAGE_KEY_PREFIX = "HASS_DEVICE:%u";
@@ -20,6 +21,7 @@ TaskHandle_t handleTask;
 hass_device_info_t* nvs_hass_device_info_arr;
 uint16_t nvs_hass_device_info_arr_length = 0;
 bool is_nvs_busy = false;
+Account* account;
 [[noreturn]] void TaskHassDeviceStateUpdate(void* pvParameters)
 {
 	printf("TaskHassDeviceStateUpdate start\n");
@@ -95,9 +97,14 @@ bool is_nvs_busy = false;
 				char* entity_id = hass_device_info.entity_id;
 				char topic_name[128];
 				snprintf(topic_name, sizeof(topic_name), "%s/HOME/device/%s", MQTT_HOST, entity_id);
+				struct timeval tp;
+				gettimeofday(&tp, NULL);
+				long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
 				cJSON* root = cJSON_CreateObject();
-				cJSON_AddStringToObject(root, "action", "SYNC");
+				cJSON_AddStringToObject(root, "msg_type", "hass_device_state_sync");
 				cJSON_AddStringToObject(root, "entity_id", entity_id);
+				cJSON_AddNumberToObject(root, "timestamp", ms);
+				cJSON_AddStringToObject(root, "msg_body", "");
 				char* msg = cJSON_Print(root);
 				HAL::mqtt_publish(topic_name, msg);
 				//释放cJson的root节点下的所有内存
@@ -105,8 +112,26 @@ bool is_nvs_busy = false;
 				//释放生成的json字符串的内存
 				cJSON_free(msg);
 			}
-			delay(3000);
+			delay(HASS_DEVICE_SYNC_INTERVAL);
 		}
+	}
+}
+
+void HassDeviceManager::Init()
+{
+	printf("HassDeviceManager: Init\n");
+	//定义发布者的buf容量 否则无法发送
+	account = new Account("HassDeviceManager", AccountSystem::Broker(), sizeof(hass_device_event), nullptr);
+	hass_device_task_init();
+}
+
+void HassDeviceManager::Deinit()
+{
+	hass_device_task_delete();
+	if (account)
+	{
+		delete account;
+		account = nullptr;
 	}
 }
 
@@ -175,6 +200,58 @@ void HassDeviceManager::onHassDeviceSyncEvent(char* msg_body)
 	}
 	//释放内存
 	cJSON_Delete(pJsonArrayRoot);
+}
+
+void HassDeviceManager::onHassDeviceStateUpdateEvent(char* msg_body){
+//	printf("HassDeviceManager: onHassDeviceStateUpdateEvent, msg_body:%s\n", msg_body);
+	cJSON* pJsonRoot = cJSON_Parse(msg_body);
+	if (pJsonRoot == NULL)
+	{
+		printf("HassDeviceManager: onHassDeviceStateUpdateEvent parse msg_body json object failed, return\n");
+		cJSON_Delete(pJsonRoot);
+		return;
+	}
+
+	cJSON* pJsonAction = cJSON_GetObjectItem(pJsonRoot, "action");
+	if (pJsonAction == NULL || !cJSON_IsString(pJsonAction))
+	{
+		printf("mqttCallback: json action not found, return\n");
+		// 释放cJSON_CreateObject()分配出来的内存空间
+		cJSON_Delete(pJsonRoot);
+		return;
+	}
+	std::string action = cJSON_GetStringValue(pJsonAction);
+//	printf("HassDeviceManager: onHassDeviceStateUpdateEvent, action:%s\n", action);
+
+	cJSON* pJsonEntityId = cJSON_GetObjectItem(pJsonRoot, "entity_id");
+	if (pJsonEntityId == NULL || !cJSON_IsString(pJsonEntityId))
+	{
+		printf("mqttCallback: json entity_id not found, return\n");
+		// 释放cJSON_CreateObject()分配出来的内存空间
+		cJSON_Delete(pJsonRoot);
+		return;
+	}
+	std::string entity_id = cJSON_GetStringValue(pJsonEntityId);
+//	printf("HassDeviceManager: onHassDeviceStateUpdateEvent, entity_id:%s\n", entity_id);
+
+	cJSON* pJsonState = cJSON_GetObjectItem(pJsonRoot, "state");
+	if (pJsonState == NULL || !cJSON_IsString(pJsonState))
+	{
+		printf("mqttCallback: json state not found, return\n");
+		// 释放cJSON_CreateObject()分配出来的内存空间
+		cJSON_Delete(pJsonRoot);
+		return;
+	}
+	std::string state = cJSON_GetStringValue(pJsonState);
+	hass_device_event hassDeviceEvent;
+	hassDeviceEvent.entity_id = entity_id.c_str();
+	hassDeviceEvent.action = action.c_str();
+	hassDeviceEvent.state = state.c_str();
+	cJSON_Delete(pJsonRoot);
+	//扔到消息系统主题中
+	account->Commit((const void*)&hassDeviceEvent, sizeof(hassDeviceEvent));
+	account->Publish();
+//	printf("HassDeviceManager: onHassDeviceStateUpdateEvent account->Publish\n");
 }
 
 bool HassDeviceManager::writeHassDeviceIntoNvs(char* device_info_json)
@@ -473,3 +550,71 @@ uint16_t HassDeviceManager::getAllDeviceList(hass_device_info_t hass_device_info
 	return nvs_hass_device_info_arr_length;
 }
 
+void HassDeviceManager::turnOnLight(const char* entity_id)
+{
+	std::map<std::string, std::string> property_map;
+	callService(entity_id, "light", "turn_on", property_map);
+}
+
+void HassDeviceManager::turnOffLight(const char* entity_id)
+{
+	std::map<std::string, std::string> property_map;
+	callService(entity_id, "light", "turn_off", property_map);
+}
+
+void HassDeviceManager::toggleLight(const char* entity_id, std::map<std::string, std::string> property_map)
+{
+	callService(entity_id, "light", "toggle", std::move(property_map));
+}
+
+void HassDeviceManager::turnOnSwitch(const char* entity_id)
+{
+	std::map<std::string, std::string> property_map;
+	callService(entity_id, "switch", "turn_on", property_map);
+}
+
+void HassDeviceManager::turnOffSwitch(const char* entity_id)
+{
+	std::map<std::string, std::string> property_map;
+	callService(entity_id, "switch", "turn_off", property_map);
+}
+
+void HassDeviceManager::callService(const char* entity_id,
+	const char* domain,
+	const char* service,
+	std::map<std::string, std::string> property_map)
+{
+	char topic_name[128];
+	snprintf(topic_name, sizeof(topic_name), "%s/HOME/device/%s", MQTT_HOST, entity_id);
+	struct timeval tp;
+	gettimeofday(&tp, NULL);
+	long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+	cJSON* root = cJSON_CreateObject();
+	cJSON_AddStringToObject(root, "msg_type", "hass_device_control");
+	cJSON_AddNumberToObject(root, "timestamp", ms);
+	cJSON* cJsonMsgBody = cJSON_CreateObject();
+	cJSON_AddStringToObject(cJsonMsgBody, "action", "call_service");
+	cJSON_AddStringToObject(cJsonMsgBody, "entity_id", entity_id);
+	cJSON_AddStringToObject(cJsonMsgBody, "domain", domain);
+	cJSON_AddStringToObject(cJsonMsgBody, "service", service);
+
+	if (!property_map.empty())
+	{
+		std::map<std::string, std::string>::iterator iter;
+		iter = property_map.begin();
+		while (iter != property_map.end())
+		{
+			std::string key = iter->first;
+			std::string value = iter->second;
+			cJSON_AddStringToObject(cJsonMsgBody, key.c_str(), value.c_str());
+			iter++;
+		}
+	}
+
+	cJSON_AddItemToObject(root, "msg_body", cJsonMsgBody);
+	char* payload = cJSON_Print(root);
+	printf("mqtt send: %s:%s\n", topic_name, payload);
+	HAL::mqtt_publish(topic_name, payload);
+	cJSON_Delete(root);
+	cJSON_free(payload);
+}

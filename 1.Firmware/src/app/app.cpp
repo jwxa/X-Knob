@@ -43,7 +43,7 @@ void App_Init()
     manager.Install("Startup", "Pages/Startup");
 	manager.Install("Playground", "Pages/Playground");
 	manager.Install("SurfaceDial", "Pages/SurfaceDial");
-	manager.Install("HassHalComm","Pages/Hass");
+	manager.Install("Hass","Pages/Hass");
 	manager.Install("HassDeviceSyncComm","Pages/HassDeviceSync");
     // manager.Install("Scene3D", "Pages/Scene3D");
 

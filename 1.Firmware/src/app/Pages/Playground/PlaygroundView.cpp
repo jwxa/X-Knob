@@ -140,28 +140,32 @@ void PlaygroundView::Create(lv_obj_t* root)
 	lv_obj_set_style_bg_color(root, lv_color_black(), 0);
 	lv_obj_set_style_bg_opa(root, LV_OPA_COVER, 0);
 	
-	//Write codes meter
+	//Write codes meter 创建一个时钟控件
 	ui.meter = lv_meter_create(root);
 	lv_obj_set_pos(ui.meter, 1, 0);
 	lv_obj_set_size(ui.meter, LV_HOR_RES, LV_VER_RES);
 	lv_obj_set_scrollbar_mode(ui.meter, LV_SCROLLBAR_MODE_OFF);
 
-	//add scale ui.scale_circle
+	/*Remove the circle from the middle*/
+	lv_obj_remove_style(ui.meter, NULL, LV_PART_INDICATOR);
+	lv_obj_remove_style(ui.meter, NULL, LV_PART_ITEMS);
+
+	//add scale ui.scale_circle 设置刻度的颜色和范围
 	ui.scale_pot = lv_meter_add_scale(ui.meter);
-	lv_meter_set_scale_ticks(ui.meter, ui.scale_pot, 41, 2, 0, lv_color_make(0xff, 0x00, 0x00));
+	lv_meter_set_scale_ticks(ui.meter, ui.scale_pot, 41, 2, 0, lv_color_black());
 	lv_meter_set_scale_range(ui.meter, ui.scale_pot, 0, 360, 360, 270);
 
-	//add needle img for ui.scale_circle
-	ui.nd_img_circle = lv_meter_add_needle_img(ui.meter, ui.scale_pot,Resource.GetImage("dot_blue"), -100, 8);
+	//add needle img for ui.scale_circle 创建蓝点 设置指针指向0
+	ui.nd_img_circle = lv_meter_add_needle_img(ui.meter, ui.scale_pot, Resource.GetImage("dot_blue"), -100, 8);
 	lv_meter_set_indicator_value(ui.meter, ui.nd_img_circle, 0);
 
 	//add scale ui.scale_value
 	ui.scale_arc = lv_meter_add_scale(ui.meter);
-	lv_meter_set_scale_ticks(ui.meter, ui.scale_arc, 41, 0, 0, lv_color_make(0xff, 0x00, 0x00));
+	lv_meter_set_scale_ticks(ui.meter, ui.scale_arc, 41, 0, 0, lv_color_black());
 	lv_meter_set_scale_range(ui.meter, ui.scale_arc, 0, 100, 360, ARC_START_ROTATION);
 
 	//add arc for ui.scale_value
-	ui.arc = lv_meter_add_arc(ui.meter, ui.scale_arc, 6, lv_color_make(0xff, 0x00, 0x00), 5);
+	ui.arc = lv_meter_add_arc(ui.meter, ui.scale_arc, 6, lv_color_black(), 5);
 	lv_meter_set_indicator_start_value(ui.meter, ui.arc, 0);
 	lv_meter_set_indicator_end_value(ui.meter, ui.arc, 0);
 
@@ -197,7 +201,7 @@ void PlaygroundView::Create(lv_obj_t* root)
 	lv_label_set_text(ui.label_value, "0");
 	lv_label_set_long_mode(ui.label_value, LV_LABEL_LONG_WRAP);
 
-	//Write style state: LV_STATE_DEFAULT for label_style
+	//Write style state: LV_STATE_DEFAULT for label_style 还是圆点上方label
 	static lv_style_t label_style;
 	lv_style_init(&label_style);
 	lv_style_set_radius(&label_style, 0);
